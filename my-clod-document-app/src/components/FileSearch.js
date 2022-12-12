@@ -1,32 +1,28 @@
 import React,{useState,useEffect,useRef} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faSearch} from '@fortawesome/free-solid-svg-icons'
+import {faSearch,faTimes} from '@fortawesome/free-solid-svg-icons'
+import PropTypes from 'prop-types';
+import useKeyPress from '../hooks/useKeyPress';
 
 const FileSearch = ({title, onFileSearch}) => {
     const [value, setValue] = useState('')
     const [isActive,setIsActive] = useState(false)
 
+    const enterPressed = useKeyPress(13)
+    const escPressed = useKeyPress(27)
+
     const node = useRef(null)
 
-    const closeSearch = (e) =>{
-        e.preventDefault();
+    const closeSearch = () =>{
         setIsActive(false)
         setValue('')
     }
     useEffect(() => {
-        const handleInputEvent = (event) =>{
-            const {keyCode} = event
-            if(keyCode === 13 && isActive){// enter
-                onFileSearch(value)
-            }else if(keyCode === 27 && isActive){// esc
-                closeSearch(event)
-            }
+        if(enterPressed && isActive){
+            onFileSearch(value)
         }
-
-        document.addEventListener('keyup', handleInputEvent)
-
-        return () => {
-            document.removeEventListener('keyup', handleInputEvent)
+        if(escPressed && isActive){
+            closeSearch()
         }
     })
 
@@ -37,16 +33,29 @@ const FileSearch = ({title, onFileSearch}) => {
     },[isActive])
 
     return (
-        <div className='alert alert-primary'>
-            {isActive ? <div className='row'>
-                <input className='col-8' value={value}  onChange={(e) => setValue(e.target.value)} ref={node}/>
-                <button  className='col-4 btn btn-primary' type="button" onClick={closeSearch} >关闭</button>
+        <div  className='alert alert-primary'>
+            {isActive ? <div className='d-flex justify-content-between align-items-center row'>
+                <input className='col-8'  value={value}  onChange={(e) => setValue(e.target.value)} ref={node}/>
+                <button className='icon-button col-4'  onClick={closeSearch}>
+                <FontAwesomeIcon title='关闭' icon={faTimes} size='lg' className='' />
+                </button>
             </div> : <div className='d-flex justify-content-between align-items-center'>
                 <span>{title}</span>
-                <FontAwesomeIcon icon={faSearch} size='lg' className='icon-button'  onClick={() => setIsActive(true)}/>
+                <button className='icon-button'>
+                <FontAwesomeIcon title='搜索' icon={faSearch} size='lg' className=''  onClick={() => setIsActive(true)}/>
+                </button>
             </div>}
         </div>
     )
+}
+
+FileSearch.propTypes = {
+    title:PropTypes.string,
+    onFileSearch:PropTypes.func
+}
+
+FileSearch.defaultProps = {
+    title:'占位文字'
 }
 
 export default FileSearch
