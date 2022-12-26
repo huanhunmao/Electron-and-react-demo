@@ -39,6 +39,8 @@ function App() {
             <TabList
             files={defaultFiles}
             onTabClick={(id) => console.log('id',id)}
+            onCloseTab={(id) => console.log('closing',id)}
+            unsavedIds={['1']}
             activeId='1'
             />
         </div>
